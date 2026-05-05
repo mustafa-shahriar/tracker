@@ -4,9 +4,10 @@ import { integer, pgTable, varchar, bigint, check, text, timestamp, foreignKey, 
 export const usersTable = pgTable("users", {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     name: varchar({ length: 255 }).notNull(),
-    age: integer().notNull(),
     email: varchar({ length: 255 }).notNull().unique(),
-    createdAt: timestamp().default(sql`now()`),
+    passwordHash: text().notNull(),
+    createdAt: timestamp().defaultNow(),
+    isVerified: boolean().notNull().default(false),
 });
 
 export const userStatTable = pgTable("user_stat", {
@@ -32,16 +33,18 @@ export const torrentsTable = pgTable("torrents", {
     infoHash: varchar("info_hash", { length: 40 }).notNull().unique(),
     fileUrl: text("file_url").notNull(),
     coverImgUrl: text("cover_img_url"),
-    uploaderId: integer("uploader_id").notNull(),
-    createdAt: timestamp().default(sql`now()`).notNull(),
+    uploaderId: integer("uploader_id").references(() => usersTable.id),
+    createdAt: timestamp().defaultNow().notNull(),
     completedCount: integer().default(0),
     isPrivate: boolean().default(true),
-},
-    (table) => [
-        foreignKey({
-            name: "uploader_id",
-            columns: [table.uploaderId],
-            foreignColumns: [usersTable.id],
-        })
-    ]
-)
+})
+
+export const refreshTokensTable = pgTable("refresh_tokens", {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    userId: integer()
+        .notNull()
+        .references(() => usersTable.id, { onDelete: "cascade" }),
+    tokenHash: text().notNull(),
+    expiresAt: timestamp().notNull(),
+    createdAt: timestamp().notNull().defaultNow(),
+});
