@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import type { LoginInput, RegisterInput } from "./auth.validation.ts";
-import { createRefreshToken, createUser, generateJwt, verifyRefreshToken, getUser } from "./auth.service.ts";
+import { createRefreshToken, createUser, generateJwt, verifyRefreshToken, getUser, deleteRefreshToken } from "./auth.service.ts";
 
 
 export async function login(req: Request<{}, {}, LoginInput>, res: Response) {
@@ -34,18 +34,39 @@ export async function login(req: Request<{}, {}, LoginInput>, res: Response) {
 
 }
 
-export async function logout(req: Request<{}, {}, RegisterInput>, res: Response) {
-    return res.json({ message: "haven't been implemented yet" });
+export async function logout(req: Request, res: Response) {
+    try {
+        const rawToken = req.cookies.refreshToken;
+        if (!rawToken) {
+            return res.status(401).json({ message: "No refresh Token" })
+        }
+        await deleteRefreshToken(rawToken as string);
+
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+        });
+
+        return res.status(200).json({
+            message: "Logged out successfully",
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Internal server error",
+        });
+    }
 }
 
 export async function refresh(req: Request, res: Response) {
     try {
-        const refreshToken = req.headers.refreshToekn;
-        if (!refreshToken) {
+        const rawToken = req.cookies.refreshToken;
+        if (!rawToken) {
             return res.status(401).json({ message: "No refresh Token" })
         }
 
-        const token = await verifyRefreshToken(refreshToken as string);
+        const token = await verifyRefreshToken(rawToken);
         if (!token) {
             return res.status(401).json({ message: "Invalid refresh Token" })
         }
@@ -61,7 +82,7 @@ export async function refresh(req: Request, res: Response) {
     }
 }
 
-export async function register(req: Request, res: Response) {
+export async function register(req: Request<{}, {}, RegisterInput>, res: Response) {
     try {
         const user = await createUser(req.body)
         const jwt = generateJwt({ userId: user.id })
