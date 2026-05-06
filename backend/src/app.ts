@@ -3,6 +3,7 @@ import { authRouter } from "./modules/auth/auth.routes.ts";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { FRONTEND_URL } from "./config.ts";
+import { torrentRouter } from "./modules/torrents/torrents.routes.ts";
 
 export const app = express();
 
@@ -14,3 +15,4 @@ app.use(cors({
 }))
 
 app.use("/auth", authRouter);
+app.use("/torrent", torrentRouter);
