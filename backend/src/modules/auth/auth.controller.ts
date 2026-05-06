@@ -21,6 +21,7 @@ export async function login(req: Request<{}, {}, LoginInput>, res: Response) {
         });
 
     } catch (err: any) {
+        console.log(err);
         if (err.message === "Invalid credential") {
             return res.status(401).json({
                 message: "Invalid credential",
@@ -76,6 +77,7 @@ export async function refresh(req: Request, res: Response) {
         return res.json({ accessToken });
 
     } catch (err) {
+        console.log(err);
         return res.status(500).json({
             message: "Internal server error",
         });

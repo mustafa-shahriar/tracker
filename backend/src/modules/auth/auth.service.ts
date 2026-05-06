@@ -4,9 +4,10 @@ import crypto from "node:crypto";
 
 import { db } from "../../db/db.ts";
 import { refreshTokensTable, usersTable } from "../../db/schema.ts";
-import { jwtSecret } from "../../config.ts";
+import { JWT_SECRET } from "../../config.ts";
 import type { LoginInput, RegisterInput } from "./auth.validation.ts";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
+import type { AuthUser } from "../../types/auth.ts";
 
 
 export async function createUser(userData: RegisterInput) {
@@ -26,25 +27,24 @@ export async function createUser(userData: RegisterInput) {
 }
 
 export async function getUser(payload: LoginInput) {
-    const hashPass = await argon2.hash(payload.password);
-    const [user] = await db.select().from(usersTable).where(and(
+    const [user] = await db.select().from(usersTable).where(
         eq(usersTable.email, payload.email),
-        eq(usersTable.passwordHash, hashPass)
-    ))
-
+    )
     if (!user) {
         throw new Error("Invalid credential")
     }
 
-    return user;
+    const isValidPass = await argon2.verify(user.passwordHash, payload.password);
+    if (!isValidPass) {
+        throw new Error("Invalid credential")
+    }
+
+    const { passwordHash, ...safeUser } = user;
+    return safeUser;
 }
 
-type TokenPayload = {
-    userId: number;
-};
-
-export function generateJwt(payload: TokenPayload) {
-    return jwt.sign(payload, jwtSecret!, {
+export function generateJwt(payload: AuthUser) {
+    return jwt.sign(payload, JWT_SECRET!, {
         expiresIn: "15m",
     });
 }

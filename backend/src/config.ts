@@ -1,9 +1,9 @@
 import 'dotenv/config';
-import { drizzle } from 'drizzle-orm/node-postgres';
 
-export const PORT = process.env.PORT;
-export const jwtSecret = process.env.JWT_SECRET;
-export const REFRESH_TOKEN_EXPIRES_DAYS = 30;
+export const PORT = process.env.PORT!;
+export const JWT_SECRET = process.env.JWT_SECRET!;
+export const REFRESH_TOKEN_EXPIRES_DAYS = 30!;
+export const FRONTEND_URL = process.env.FRONTEND_URL!;
 
 const pgUser = process.env.POSTGRES_USER;
 const pgPass = process.env.POSTGRES_PASSWORD;
@@ -24,7 +24,7 @@ const minioRegion = process.env.MINIO_REGION;
 
 export const config = {
     postgres: {
-        url: `postgresql://${pgUser}:${pgPass}` + `@${pgHost}:${pgPort}` + `/${pgDb}`,
+        url: `postgresql://${pgUser}:${pgPass}@${pgHost}:${pgPort}/${pgDb}`,
     },
     redis: {
         url: `redis://:${redisPass}` + `@${redisHost}:${redisPort}`,
@@ -37,6 +37,3 @@ export const config = {
         region: minioRegion,
     },
 };
-
-
-export const db = drizzle(config.postgres.url);

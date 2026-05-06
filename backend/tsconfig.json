@@ -5,6 +5,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "allowImportingTsExtensions": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"],
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module

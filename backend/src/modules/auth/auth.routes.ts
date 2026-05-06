@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { forgotPassword, login, logout, refresh, register, resendVerificationEmail, resetPassword, verifyEmail, } from "./auth.controller.ts";
-import { validatePayload } from "./auth.middleware.ts";
+import { validatePayload } from "../../middleware.ts";
 import { loginSchema, registerSchema } from "./auth.validation.ts";
 
 export const authRouter = Router()

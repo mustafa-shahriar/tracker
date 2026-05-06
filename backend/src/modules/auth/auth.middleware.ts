@@ -1,20 +1,17 @@
 import type { Request, Response, NextFunction } from "express";
-import type { ZodObject } from "zod";
+import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../../config.ts";
+import type { AuthUser } from "../../types/auth.ts";
 
-
-export function validatePayload(schema: ZodObject) {
-    return (req: Request, res: Response, next: NextFunction) => {
-        const result = schema.safeParse(req.body);
-
-        if (!result.success) {
-            return res.status(400).json({
-                message: "Validation failed",
-                errors: result.error.message,
-            });
-        }
-
-        req.body = result.data;
-
+export function verifyLogin(req: Request, res: Response, next: NextFunction) {
+    try {
+        const authorization = req.headers.Authorization!;
+        const token = authorization.toString().split(" ")[1] as string;
+        const user = jwt.verify(token, JWT_SECRET) as AuthUser;
+        req.user = user;
         next();
+    } catch (err: any) {
+        console.log(err);
+        return res.json({ "message": err.message })
     }
-};
+}

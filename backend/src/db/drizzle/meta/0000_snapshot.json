@@ -1,0 +1,446 @@
+{
+  "id": "e1912aa0-4b92-46a4-b596-1dafc208b70f",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.refresh_tokens": {
+      "name": "refresh_tokens",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "refresh_tokens_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tokenHash": {
+          "name": "tokenHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "refresh_tokens_userId_users_id_fk": {
+          "name": "refresh_tokens_userId_users_id_fk",
+          "tableFrom": "refresh_tokens",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.torrents": {
+      "name": "torrents",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "torrents_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "size": {
+          "name": "size",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "info_hash": {
+          "name": "info_hash",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "file_url": {
+          "name": "file_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cover_img_url": {
+          "name": "cover_img_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "uploader_id": {
+          "name": "uploader_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "audio_languages": {
+          "name": "audio_languages",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'[]'::jsonb"
+        },
+        "subtitles": {
+          "name": "subtitles",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'[]'::jsonb"
+        },
+        "completedCount": {
+          "name": "completedCount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "isPrivate": {
+          "name": "isPrivate",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        },
+        "isDeleted": {
+          "name": "isDeleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "info_hash_idx": {
+          "name": "info_hash_idx",
+          "columns": [
+            {
+              "expression": "info_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "uploader_idx": {
+          "name": "uploader_idx",
+          "columns": [
+            {
+              "expression": "uploader_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "torrents_uploader_id_users_id_fk": {
+          "name": "torrents_uploader_id_users_id_fk",
+          "tableFrom": "torrents",
+          "tableTo": "users",
+          "columnsFrom": [
+            "uploader_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "torrents_info_hash_unique": {
+          "name": "torrents_info_hash_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "info_hash"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.user_stat": {
+      "name": "user_stat",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "uploaded": {
+          "name": "uploaded",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "downloaded": {
+          "name": "downloaded",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "ip": {
+          "name": "ip",
+          "type": "inet",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "port": {
+          "name": "port",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ipUpdatedAt": {
+          "name": "ipUpdatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "passKey": {
+          "name": "passKey",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "passKeyCreatedAt": {
+          "name": "passKeyCreatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_stat_user_id_users_id_fk": {
+          "name": "user_stat_user_id_users_id_fk",
+          "tableFrom": "user_stat",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "user_stat_passKey_unique": {
+          "name": "user_stat_passKey_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "passKey"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "uploaded_check": {
+          "name": "uploaded_check",
+          "value": "\"user_stat\".\"uploaded\" >= 0"
+        },
+        "download_check": {
+          "name": "download_check",
+          "value": "\"user_stat\".\"downloaded\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "users_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "passwordHash": {
+          "name": "passwordHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "isVerified": {
+          "name": "isVerified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.category": {
+      "name": "category",
+      "schema": "public",
+      "values": [
+        "movie",
+        "series",
+        "anime",
+        "documentary",
+        "game",
+        "software",
+        "music",
+        "book",
+        "ebook",
+        "audiobook",
+        "course",
+        "tutorial",
+        "other"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
