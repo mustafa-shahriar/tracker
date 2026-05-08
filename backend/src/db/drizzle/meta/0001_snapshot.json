@@ -1,9 +1,111 @@
 {
-    "id": "e1912aa0-4b92-46a4-b596-1dafc208b70f",
-    "prevId": "00000000-0000-0000-0000-000000000000",
+    "id": "31ce48ef-382f-443a-8f88-2dbf748df11e",
+    "prevId": "e1912aa0-4b92-46a4-b596-1dafc208b70f",
     "version": "7",
     "dialect": "postgresql",
     "tables": {
+        "public.peer_sessions": {
+            "name": "peer_sessions",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "integer",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "identity": {
+                        "type": "always",
+                        "name": "peer_sessions_id_seq",
+                        "schema": "public",
+                        "increment": "1",
+                        "startWith": "1",
+                        "minValue": "1",
+                        "maxValue": "2147483647",
+                        "cache": "1",
+                        "cycle": false
+                    }
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "infohash": {
+                    "name": "infohash",
+                    "type": "varchar(40)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "uploaded": {
+                    "name": "uploaded",
+                    "type": "bigint",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "downloaded": {
+                    "name": "downloaded",
+                    "type": "bigint",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "left": {
+                    "name": "left",
+                    "type": "bigint",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "started_at": {
+                    "name": "started_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "default": "now()"
+                },
+                "completed_at": {
+                    "name": "completed_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "peer_sessions_user_id_users_id_fk": {
+                    "name": "peer_sessions_user_id_users_id_fk",
+                    "tableFrom": "peer_sessions",
+                    "tableTo": "users",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "peer_sessions_infohash_torrents_info_hash_fk": {
+                    "name": "peer_sessions_infohash_torrents_info_hash_fk",
+                    "tableFrom": "peer_sessions",
+                    "tableTo": "torrents",
+                    "columnsFrom": ["infohash"],
+                    "columnsTo": ["info_hash"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
         "public.refresh_tokens": {
             "name": "refresh_tokens",
             "schema": "",
@@ -39,13 +141,13 @@
                 },
                 "expiresAt": {
                     "name": "expiresAt",
-                    "type": "timestamp",
+                    "type": "timestamp with time zone",
                     "primaryKey": false,
                     "notNull": true
                 },
                 "createdAt": {
                     "name": "createdAt",
-                    "type": "timestamp",
+                    "type": "timestamp with time zone",
                     "primaryKey": false,
                     "notNull": true,
                     "default": "now()"
@@ -176,7 +278,7 @@
                 },
                 "createdAt": {
                     "name": "createdAt",
-                    "type": "timestamp",
+                    "type": "timestamp with time zone",
                     "primaryKey": false,
                     "notNull": true,
                     "default": "now()"
@@ -275,7 +377,7 @@
                 },
                 "ipUpdatedAt": {
                     "name": "ipUpdatedAt",
-                    "type": "timestamp",
+                    "type": "timestamp with time zone",
                     "primaryKey": false,
                     "notNull": false
                 },
@@ -366,7 +468,7 @@
                 },
                 "createdAt": {
                     "name": "createdAt",
-                    "type": "timestamp",
+                    "type": "timestamp with time zone",
                     "primaryKey": false,
                     "notNull": false,
                     "default": "now()"

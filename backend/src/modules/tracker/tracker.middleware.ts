@@ -9,6 +9,6 @@ export async function verifyPassKey(req: Request, res: Response, next: NextFunct
         next();
     } catch (err: any) {
         console.log(err);
-        return res.status(401).json({ "message": "unauthorized access" })
+        return res.status(401).json({ message: "unauthorized access" });
     }
 }

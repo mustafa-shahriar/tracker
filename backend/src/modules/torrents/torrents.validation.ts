@@ -1,26 +1,24 @@
 import { z } from "zod";
 
-const category = z.enum(
-    [
-        "movie",
-        "series",
-        "anime",
-        "documentary",
+const category = z.enum([
+    "movie",
+    "series",
+    "anime",
+    "documentary",
 
-        "game",
-        "software",
-        "music",
+    "game",
+    "software",
+    "music",
 
-        "book",
-        "ebook",
-        "audiobook",
+    "book",
+    "ebook",
+    "audiobook",
 
-        "course",
-        "tutorial",
+    "course",
+    "tutorial",
 
-        "other"
-    ]
-)
+    "other",
+]);
 
 export const uploadReqBodySchema = z.object({
     title: z.string().max(255).optional(),
@@ -48,23 +46,11 @@ export const torrentMustHaveSchema = z.object({
 });
 
 export const updateTorrentReqBodySchema = z.strictObject({
-    title: z
-        .string()
-        .min(1)
-        .max(255)
-        .optional(),
-    description: z
-        .string()
-        .optional(),
+    title: z.string().min(1).max(255).optional(),
+    description: z.string().optional(),
 
     category: category,
-    languages: z
-        .array(z.string())
-        .optional(),
-    subtitles: z
-        .array(z.string())
-        .optional(),
-    isPrivate: z
-        .boolean()
-        .optional(),
+    languages: z.array(z.string()).optional(),
+    subtitles: z.array(z.string()).optional(),
+    isPrivate: z.boolean().optional(),
 });

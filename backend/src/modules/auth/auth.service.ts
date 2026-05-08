@@ -9,7 +9,6 @@ import type { LoginInput, RegisterInput } from "./auth.validation.ts";
 import { eq } from "drizzle-orm";
 import type { AuthUser } from "../../types/auth.ts";
 
-
 export async function createUser(userData: RegisterInput) {
     const hashPass = await argon2.hash(userData.password);
 
@@ -27,16 +26,14 @@ export async function createUser(userData: RegisterInput) {
 }
 
 export async function getUser(payload: LoginInput) {
-    const [user] = await db.select().from(usersTable).where(
-        eq(usersTable.email, payload.email),
-    )
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.email, payload.email));
     if (!user) {
-        throw new Error("Invalid credential")
+        throw new Error("Invalid credential");
     }
 
     const isValidPass = await argon2.verify(user.passwordHash, payload.password);
     if (!isValidPass) {
-        throw new Error("Invalid credential")
+        throw new Error("Invalid credential");
     }
 
     const { passwordHash, ...safeUser } = user;
@@ -54,12 +51,8 @@ export function generateRawRefreshToken() {
 }
 
 export function hashRefreshToken(token: string) {
-    return crypto
-        .createHash("sha256")
-        .update(token)
-        .digest("hex");
+    return crypto.createHash("sha256").update(token).digest("hex");
 }
-
 
 export async function createRefreshToken(userId: number) {
     const rawToken = generateRawRefreshToken();
@@ -88,11 +81,9 @@ export async function verifyRefreshToken(rawToken: string) {
     if (!token) return null;
 
     if (token.expiresAt < new Date()) {
-        await db
-            .delete(refreshTokensTable)
-            .where(eq(refreshTokensTable.id, token.id));
+        await db.delete(refreshTokensTable).where(eq(refreshTokensTable.id, token.id));
         return null;
-    };
+    }
 
     return token;
 }
@@ -100,7 +91,5 @@ export async function verifyRefreshToken(rawToken: string) {
 export async function deleteRefreshToken(rawToken: string) {
     const tokenHash = hashRefreshToken(rawToken);
 
-    await db
-        .delete(refreshTokensTable)
-        .where(eq(refreshTokensTable.tokenHash, tokenHash));
+    await db.delete(refreshTokensTable).where(eq(refreshTokensTable.tokenHash, tokenHash));
 }

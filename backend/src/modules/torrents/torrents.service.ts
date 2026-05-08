@@ -1,36 +1,34 @@
 import { db, s3 } from "../../db/db.ts";
 import { config } from "../../config.ts";
 import { torrentsTable } from "../../db/schema.ts";
-import parseTorrent from 'parse-torrent'
-import { torrentMustHaveSchema, updateTorrentReqBodySchema, uploadReqBodySchema } from "./torrents.validation.ts";
+import parseTorrent from "parse-torrent";
+import {
+    torrentMustHaveSchema,
+    updateTorrentReqBodySchema,
+    uploadReqBodySchema,
+} from "./torrents.validation.ts";
 import type z from "zod";
 import { and, eq, type InferInsertModel } from "drizzle-orm";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
 
-
 type CreateTorrentInput = {
     userId: number;
-    body: z.infer<typeof uploadReqBodySchema>,
+    body: z.infer<typeof uploadReqBodySchema>;
     files: any;
 };
 
-export async function createTorrent({
-    userId,
-    body,
-    files,
-}: CreateTorrentInput) {
+export async function createTorrent({ userId, body, files }: CreateTorrentInput) {
     const torrentFile = files.file?.[0];
     if (!torrentFile) {
         throw new Error("Torrent file is required");
     }
     const coverImg = files.cover?.[0];
-    const torrentFileUrl = await uploadFile(torrentFile, torrentFile.mimetype)
+    const torrentFileUrl = await uploadFile(torrentFile, torrentFile.mimetype);
     let coverUrl = undefined;
     if (coverImg) {
-        coverUrl = await uploadFile(coverImg, coverImg.mimetype)
+        coverUrl = await uploadFile(coverImg, coverImg.mimetype);
     }
-
 
     const torrent = parseTorrent(torrentFile);
     const parsedTorrent = torrentMustHaveSchema.parse(torrent);
@@ -53,14 +51,16 @@ export async function createTorrent({
 export async function getTorrent(id: number) {
     const [torrent] = await db.select().from(torrentsTable).where(eq(torrentsTable.id, id));
     if (!torrent) {
-        throw new Error(`Torrent Not Found with id ${id}`)
+        throw new Error(`Torrent Not Found with id ${id}`);
     }
     return torrent;
 }
 
-
 export async function deleteTorrent(id: number, userId: number) {
-    const [torrent] = await db.delete(torrentsTable).where(and(eq(torrentsTable.id, id), eq(torrentsTable.uploaderId, userId))).returning();
+    const [torrent] = await db
+        .delete(torrentsTable)
+        .where(and(eq(torrentsTable.id, id), eq(torrentsTable.uploaderId, userId)))
+        .returning();
     if (!torrent) {
         throw new Error("You don't have permission do this");
     }
@@ -70,9 +70,10 @@ export async function deleteTorrent(id: number, userId: number) {
 export async function updateTorrent(
     id: number,
     userId: number,
-    putObj: z.infer<typeof updateTorrentReqBodySchema>
+    putObj: z.infer<typeof updateTorrentReqBodySchema>,
 ) {
-    let [torrent] = await db.update(torrentsTable)
+    let [torrent] = await db
+        .update(torrentsTable)
         .set(putObj)
         .where(and(eq(torrentsTable.id, id), eq(torrentsTable.uploaderId, userId)))
         .returning();
@@ -93,7 +94,7 @@ async function uploadFile(buffer: Buffer, contentType: string): Promise<string> 
             Key: key,
             Body: buffer,
             ContentType: contentType,
-        })
+        }),
     );
 
     const baseUrl = config.objectStorage.endpoint!.replace(/\/$/, "");

@@ -15,5 +15,5 @@ export function validatePayload(schema: ZodObject) {
         req.body = result.data;
 
         next();
-    }
-};
+    };
+}

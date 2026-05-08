@@ -1,10 +1,9 @@
 import multer from "multer";
 
 const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
-    const isTorrent = file.fieldname === "file" && (
-        file.mimetype === "application/x-bittorrent" ||
-        file.originalname.endsWith(".torrent")
-    );
+    const isTorrent =
+        file.fieldname === "file" &&
+        (file.mimetype === "application/x-bittorrent" || file.originalname.endsWith(".torrent"));
     const isImage = file.fieldname === "cover" && file.mimetype.startsWith("image/");
 
     if (isTorrent || isImage) {

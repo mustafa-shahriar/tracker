@@ -5,10 +5,10 @@ import { updateTorrentReqBodySchema, uploadReqBodySchema } from "./torrents.vali
 import { Post, Get, Put, Delete } from "./torrents.controller.ts";
 import { verifyLogin } from "../auth/auth.middleware.ts";
 
-export const torrentRouter = Router()
-torrentRouter.use(verifyLogin)
+export const torrentRouter = Router();
+torrentRouter.use(verifyLogin);
 
-torrentRouter.post("/", uploadedFilesValidator, validatePayload(uploadReqBodySchema), Post)
-torrentRouter.get("/:id", Get)
-torrentRouter.put("/:id", validatePayload(updateTorrentReqBodySchema), Put)
-torrentRouter.delete(":/id", Delete)
+torrentRouter.post("/", uploadedFilesValidator, validatePayload(uploadReqBodySchema), Post);
+torrentRouter.get("/:id", Get);
+torrentRouter.put("/:id", validatePayload(updateTorrentReqBodySchema), Put);
+torrentRouter.delete("/:id", Delete);

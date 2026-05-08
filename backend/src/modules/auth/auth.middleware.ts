@@ -12,6 +12,6 @@ export function verifyLogin(req: Request, res: Response, next: NextFunction) {
         next();
     } catch (err: any) {
         console.log(err);
-        return res.json({ "message": err.message })
+        return res.json({ message: err.message });
     }
 }

@@ -1,40 +1,48 @@
 services:
-  db:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "${POSTGRES_PORT}:5432"
-    volumes:
-      - pg_data:/var/lib/postgresql/data
+    db:
+        image: postgres:16
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        ports:
+            - "${POSTGRES_PORT}:5432"
+        volumes:
+            - pg_data:/var/lib/postgresql/data
 
-  redis:
-    image: redis:8
-    command: >
-      redis-server
-      --appendonly yes
-      --requirepass ${REDIS_PASSWORD}
-    ports:
-      - "${REDIS_PORT}:${REDIS_PORT}"
-    volumes:
-      - redis_data:/data
+    redis:
+        image: redis:8
+        command: >
+            redis-server
+            --appendonly yes
+            --requirepass ${REDIS_PASSWORD}
+        ports:
+            - "${REDIS_PORT}:6379"
+        volumes:
+            - redis_data:/data
 
-  minio:
-    image: minio/minio
-    container_name: minio
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
-    ports:
-      - "${MINIO_API_PORT}:${MINIO_API_PORT}"  # API
-      - "${MINIO_WEB_PORT}:${MINIO_WEB_PORT}"  # Web UI
-    volumes:
-      - minio_data:/data
+    redisinsight:
+        image: redis/redisinsight:latest
+        ports:
+            - "5540:5540"
+        volumes:
+            - redisinsight_data:/data
+
+    minio:
+        image: minio/minio
+        container_name: minio
+        command: server /data --console-address ":9001"
+        environment:
+            MINIO_ROOT_USER: ${MINIO_USER}
+            MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+        ports:
+            - "${MINIO_API_PORT}:9000" # API
+            - "${MINIO_WEB_PORT}:9001" # Web UI
+        volumes:
+            - minio_data:/data
 
 volumes:
-  pg_data:
-  redis_data:
-  minio_data:
+    pg_data:
+    redis_data:
+    minio_data:
+    redisinsight_data:
