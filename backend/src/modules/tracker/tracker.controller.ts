@@ -1,10 +1,8 @@
 import type { Request, Response } from "express";
 import bencodec from "bencodec";
 import { redis } from "../../db/db.ts";
-
-const ANNOUNCE_INTERVAL = 60 * 30;
-const PEER_TTL = ANNOUNCE_INTERVAL * 2;
-const MAX_PEERS = 50;
+import { getPeers, updatePeerSession } from "./tracker.service.ts";
+import { ANNOUNCE_INTERVAL, MAX_PEERS } from "../../config.ts";
 
 export async function announce(req: Request, res: Response) {
     try {
@@ -16,7 +14,7 @@ export async function announce(req: Request, res: Response) {
             downloaded,
             left,
             event,
-            numwant = 50,
+            numwant = MAX_PEERS,
             compact = 1,
         }: any = req.query;
         port = Number(port);
@@ -35,49 +33,34 @@ export async function announce(req: Request, res: Response) {
         const info_hex = Buffer.from(info_hash, "binary").toString("hex");
         const peerStatus = left === 0 ? "s" : "l";
         const key = `${peerStatus}${req.ip}:${port}`;
+        res.setHeader("Content-Type", "text/plain");
 
         if (event === "stopped") {
             await redis.zRem(info_hex, key);
             return res.send(bencodec.encodeToString({ interval: ANNOUNCE_INTERVAL, peers: "" }));
         }
 
-        await redis.zRemRangeByScore(info_hex, 0, Date.now() - PEER_TTL);
-        const peers = await redis.zRangeByScore(info_hex, Date.now() - PEER_TTL, "+inf", {
-            LIMIT: {
-                offset: MAX_PEERS,
-                count: numwant,
-            },
+        let peers = await getPeers({
+            ANNOUNCE_INTERVAL,
+            info_hex,
+            key,
+            numwant,
+            compact,
         });
-
-        await redis.zAdd(info_hex, { score: Date.now(), value: key });
-
-        let payload = undefined;
-        let seedersCount = 0;
-        let leechersCount = 0;
-        if (compact === 1) {
-            const buf = Buffer.alloc(peers.length * 6);
-            peers.forEach((peer, i) => {
-                if (peer.startsWith("s")) {
-                    seedersCount++;
-                } else {
-                    leechersCount++;
-                }
-                const [ip, port] = peer.substring(1).split(":");
-                const offset = i * 6;
-                const parts = ip?.split(".").map(Number);
-                parts?.forEach((part, j) => buf.writeUInt8(part, offset + j));
-                buf.writeUInt16BE(Number(port), offset + 4);
-            });
-            payload = buf;
-        }
-
+        await updatePeerSession({
+            user_id: req.user?.id,
+            infohash: info_hex,
+            uploaded,
+            downloaded,
+            left,
+        });
         res.send(
-            bencodec.encodeToString({
+            bencodec.encodeToBytes({
                 interval: ANNOUNCE_INTERVAL,
                 "min interval": 900,
-                complete: seedersCount,
-                incomplete: leechersCount,
-                peers: payload,
+                complete: peers.seedersCount,
+                incomplete: peers.leechersCount,
+                peers: peers.peersList,
             }),
         );
     } catch (err: any) {
@@ -89,5 +72,3 @@ export async function announce(req: Request, res: Response) {
         );
     }
 }
-
-export async function scrape(req: Request, res: Response) {}

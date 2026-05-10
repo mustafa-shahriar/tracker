@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { FRONTEND_URL } from "./config.ts";
 import { torrentRouter } from "./modules/torrents/torrents.routes.ts";
+import { trackerRouter } from "./modules/tracker/tracker.routes.ts";
 
 export const app = express();
 
@@ -18,3 +19,4 @@ app.use(
 
 app.use("/auth", authRouter);
 app.use("/torrent", torrentRouter);
+app.use("/tracker", trackerRouter);
