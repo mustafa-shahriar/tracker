@@ -6,6 +6,7 @@ import {
     getMyTorrents,
     getRecentTorrents,
     getTorrent,
+    getUserPasskey,
     searchTorrent,
     updateTorrent,
 } from "./torrents.service.ts";
@@ -20,7 +21,6 @@ export async function Post(
 ) {
     try {
         const userId = req.user.userId;
-
         const result = await createTorrent({
             userId,
             body: req.body,
@@ -29,10 +29,10 @@ export async function Post(
 
         return res.status(201).json({
             message: "Torrent uploaded successfully",
-            data: result,
             torrentId: result?.id,
         });
     } catch (err: any) {
+        console.log(err);
         return res.status(400).json({
             message: err.message,
         });
@@ -149,6 +149,18 @@ export async function Put(
     } catch (err: any) {
         return res.status(403).json({
             message: err.message,
+        });
+    }
+}
+
+export async function getTrackerUrl(req: Request, res: Response) {
+    try {
+        const userId = req.user.userId;
+        const passKey = await getUserPasskey(userId);
+        return res.json({ passKey });
+    } catch (err: any) {
+        return res.status(500).json({
+            message: "Internal server Error",
         });
     }
 }

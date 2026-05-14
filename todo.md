@@ -1,0 +1,20 @@
+- [x] implement tracker/announce
+- [x] send seed and leech count in torrent/get, count from reddis
+- [x] add recent_torrents route as torrent/recent that returns 10 recent torrent
+- [x] implement torrent/search route
+- [x] implement torrent/my_torrents route that returns the list torrent uploaded by the user
+- [x] implement download .torrent file in backend
+- [x] update the params check: 0 is false so check if it's nan or not
+- [x] get tracker url from backend and use that in upload page
+- [x] upload a torrent and check it db, redis, minio and seeding status in ktorrent
+- [x] fix peer ip address in tracker
+- [x] fix image uploade
+- [x] fix file upload in angular, use ngmodel for file upload, or maybe use ngmodel for everything
+- [O] fix multiple refresh token for user in db (not really a problem, there should be multiple rt for multi device login)
+- [ ] creat torrent/id page in angular
+- [ ] create torrent card for home  and search result page
+- [ ] implement download of .torrent file on torrent card and torrent/id page
+- [ ] create search page in angular
+- [ ] create me page in angular, render username, email and  users uploaded torrents
+- [ ] create register page in angular
+- [ ] completed count is not updated

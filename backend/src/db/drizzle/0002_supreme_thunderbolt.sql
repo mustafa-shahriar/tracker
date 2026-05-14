@@ -1,0 +1,1 @@
+ALTER TABLE "peer_sessions" ADD CONSTRAINT "user_id_info_hash_unique" UNIQUE("user_id","infohash");

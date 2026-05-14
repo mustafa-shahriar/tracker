@@ -12,6 +12,7 @@ import {
     jsonb,
     index,
     pgEnum,
+    unique,
 } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
@@ -95,21 +96,25 @@ export const torrentsTable = pgTable(
     ],
 );
 
-export const peerSessionsTable = pgTable("peer_sessions", {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    userId: integer("user_id")
-        .notNull()
-        .references(() => usersTable.id),
-    infohash: varchar("infohash", { length: 40 })
-        .notNull()
-        .references(() => torrentsTable.infoHash),
-    uploaded: bigint("uploaded", { mode: "number" }).notNull().default(0),
-    downloaded: bigint("downloaded", { mode: "number" }).notNull().default(0),
-    left: bigint("left", { mode: "number" }).notNull().default(0),
-    startedAt: timestamp("started_at", { withTimezone: true }).defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-    completedAt: timestamp("completed_at", { withTimezone: true }),
-});
+export const peerSessionsTable = pgTable(
+    "peer_sessions",
+    {
+        id: integer().primaryKey().generatedAlwaysAsIdentity(),
+        userId: integer("user_id")
+            .notNull()
+            .references(() => usersTable.id),
+        infohash: varchar("infohash", { length: 40 })
+            .notNull()
+            .references(() => torrentsTable.infoHash),
+        uploaded: bigint("uploaded", { mode: "number" }).notNull().default(0),
+        downloaded: bigint("downloaded", { mode: "number" }).notNull().default(0),
+        left: bigint("left", { mode: "number" }).notNull().default(0),
+        startedAt: timestamp("started_at", { withTimezone: true }).defaultNow(),
+        updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+        completedAt: timestamp("completed_at", { withTimezone: true }),
+    },
+    (table) => [unique("user_id_info_hash_unique").on(table.userId, table.infohash)],
+);
 
 export const refreshTokensTable = pgTable("refresh_tokens", {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),

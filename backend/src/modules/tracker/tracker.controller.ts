@@ -3,9 +3,11 @@ import bencodec from "bencodec";
 import { redis } from "../../db/db.ts";
 import { getPeers, updatePeerSession } from "./tracker.service.ts";
 import { ANNOUNCE_INTERVAL, MAX_PEERS } from "../../config.ts";
+import { normalizeIp, parseInfoHash } from "./tracker.parser.ts";
 
 export async function announce(req: Request, res: Response) {
     try {
+        const info_hex = parseInfoHash(req as any);
         let {
             info_hash,
             peer_id,
@@ -22,7 +24,14 @@ export async function announce(req: Request, res: Response) {
         uploaded = Number(uploaded);
         left = Number(left);
 
-        if (!port || !downloaded || !uploaded || !left || !info_hash || !peer_id || !port) {
+        if (
+            isNaN(port) ||
+            isNaN(downloaded) ||
+            isNaN(uploaded) ||
+            isNaN(left) ||
+            !info_hash ||
+            !peer_id
+        ) {
             return res.send(
                 bencodec.encodeToString({
                     "failure reason": "missing required parameters",
@@ -30,9 +39,9 @@ export async function announce(req: Request, res: Response) {
             );
         }
 
-        const info_hex = Buffer.from(info_hash, "binary").toString("hex");
+        const ip = normalizeIp(req.ip as string);
         const peerStatus = left === 0 ? "s" : "l";
-        const key = `${peerStatus}${req.ip}:${port}`;
+        const key = `${peerStatus}${ip}:${port}`;
         res.setHeader("Content-Type", "text/plain");
 
         if (event === "stopped") {
@@ -47,13 +56,20 @@ export async function announce(req: Request, res: Response) {
             numwant,
             compact,
         });
+        if (peerStatus === "s") {
+            peers.seedersCount++;
+        } else {
+            peers.leechersCount++;
+        }
+
         await updatePeerSession({
-            user_id: req.user?.id,
+            user_id: req.user.id, // req.user is set in validatePasskey middleware user is the user row from user table
             infohash: info_hex,
             uploaded,
             downloaded,
             left,
         });
+
         res.send(
             bencodec.encodeToBytes({
                 interval: ANNOUNCE_INTERVAL,

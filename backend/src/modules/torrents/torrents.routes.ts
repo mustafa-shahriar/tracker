@@ -11,6 +11,7 @@ import {
     search,
     myTorrents,
     downloadTorrentFile,
+    getTrackerUrl,
 } from "./torrents.controller.ts";
 import { verifyLogin } from "../auth/auth.middleware.ts";
 
@@ -21,6 +22,7 @@ torrentRouter.post("/", uploadedFilesValidator, validatePayload(uploadReqBodySch
 torrentRouter.get("/recent", recentTorrents);
 torrentRouter.get("/my_torrents", myTorrents);
 torrentRouter.get("/search/:q", search);
+torrentRouter.get("/tracker_url", getTrackerUrl);
 torrentRouter.get("/:id/download", downloadTorrentFile);
 torrentRouter.get("/:id", Get);
 torrentRouter.put("/:id", validatePayload(updateTorrentReqBodySchema), Put);

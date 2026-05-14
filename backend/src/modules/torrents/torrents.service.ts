@@ -1,18 +1,19 @@
 import { db, s3 } from "../../db/db.ts";
 import { BACKEND_URL, config } from "../../config.ts";
 import { torrentsTable, userStatTable } from "../../db/schema.ts";
-import parseTorrent from "parse-torrent";
 import {
-    torrentMustHaveSchema,
+    getInfoHashHex,
+    getTotalLength,
+    setAnnounceUrl,
     updateTorrentReqBodySchema,
     uploadReqBodySchema,
+    validateTorrent,
 } from "./torrents.validation.ts";
 import type z from "zod";
 import { and, eq, ilike, type InferInsertModel } from "drizzle-orm";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
 import bencodec from "bencodec";
-import { string } from "zod";
 
 type CreateTorrentInput = {
     userId: number;
@@ -25,22 +26,29 @@ export async function createTorrent({ userId, body, files }: CreateTorrentInput)
     if (!torrentFile) {
         throw new Error("Torrent file is required");
     }
+    const torrent: any = bencodec.decode(torrentFile.buffer);
+    validateTorrent(torrent);
+    const torrentFileUrl = await uploadFile(torrentFile.buffer, torrentFile.mimetype);
+
     const coverImg = files.cover?.[0];
-    const torrentFileUrl = await uploadFile(torrentFile, torrentFile.mimetype);
     let coverUrl = undefined;
+    console.log("coverImg:", coverImg);
+    console.log("coverImg.buffer:", coverImg?.buffer);
+    console.log("coverImg.mimetype:", coverImg?.mimetype);
     if (coverImg) {
-        coverUrl = await uploadFile(coverImg, coverImg.mimetype);
+        coverUrl = await uploadFile(coverImg.buffer, coverImg.mimetype);
     }
 
-    const torrent = parseTorrent(torrentFile);
-    const parsedTorrent = torrentMustHaveSchema.parse(torrent);
+    const decoder = new TextDecoder("utf-8");
+    const name = decoder.decode(torrent.info.name);
+
     const values: InferInsertModel<typeof torrentsTable> = {
-        title: body.title || parsedTorrent.info.name,
+        title: body.title || name,
         description: body.description,
-        size: parsedTorrent.info.length,
-        infoHash: parsedTorrent.info.infoHash,
+        size: getTotalLength(torrent),
+        infoHash: getInfoHashHex(torrent),
         fileUrl: torrentFileUrl,
-        coverImgUrl: coverImg,
+        coverImgUrl: coverUrl,
         uploaderId: userId,
         category: body.category,
         languages: body.languages,
@@ -70,6 +78,7 @@ export async function getTorrent(id: number) {
     if (!torrent) {
         throw new Error(`Torrent Not Found with id ${id}`);
     }
+    torrent.coverImgUrl = `${config.objectStorage.endpoint}/${config.objectStorage.bucket}/${torrent.coverImgUrl}`;
     return torrent;
 }
 
@@ -155,26 +164,21 @@ export async function updateTorrent(
 }
 
 async function uploadFile(buffer: Buffer, contentType: string): Promise<string> {
-    const bucket = config.objectStorage.bucket!;
-
     const key = `uploads/${randomUUID()}`;
-
     await s3.send(
         new PutObjectCommand({
-            Bucket: bucket,
+            Bucket: config.objectStorage.bucket,
             Key: key,
             Body: buffer,
             ContentType: contentType,
         }),
     );
 
-    const baseUrl = config.objectStorage.endpoint!.replace(/\/$/, "");
-    return `${baseUrl}/${bucket}/${key}`;
+    return key;
 }
 
-export async function getFile(url: string) {
-    const bucket = config.objectStorage.bucket!;
-    const key = url.split("/").pop();
+export async function getFile(key: string) {
+    const bucket = config.objectStorage.bucket;
 
     const res = await s3.send(
         new GetObjectCommand({
@@ -210,7 +214,8 @@ export async function getUserPasskey(userId: number) {
 
 async function modifyTorrentFile(fileBuf: Buffer, passkey: string) {
     const file: any = bencodec.decode(fileBuf);
-    file.announce = `${BACKEND_URL}/tracker/${passkey}/annouch`;
+    const url = `${BACKEND_URL}/tracker/${passkey}/annouch`;
+    setAnnounceUrl(file, url);
     return bencodec.encodeToBytes(file);
 }
 

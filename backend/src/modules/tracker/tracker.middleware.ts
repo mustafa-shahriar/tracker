@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { getUserByPassKey } from "./tracker.service.ts";
+import bencodec from "bencodec";
 
 export async function verifyPassKey(req: Request, res: Response, next: NextFunction) {
     try {
@@ -9,6 +10,9 @@ export async function verifyPassKey(req: Request, res: Response, next: NextFunct
         next();
     } catch (err: any) {
         console.log(err);
-        return res.status(401).json({ message: "unauthorized access" });
+        return res
+            .status(401)
+            .set("Content-Type", "text/plain")
+            .send(bencodec.encodeToBytes({ "failure reason": "unauthorized access" }));
     }
 }

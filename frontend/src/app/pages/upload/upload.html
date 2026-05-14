@@ -1,0 +1,183 @@
+<app-navbar></app-navbar>
+<div class="min-h-screen w-full flex flex-col items-center p-6 gap-6">
+  <!-- ===================== -->
+  <!-- TOP INSTRUCTIONS -->
+  <!-- ===================== -->
+  <div class="w-full max-w-6xl">
+    <div class="card bg-base-200 shadow-md">
+      <div class="card-body">
+        <h2 class="text-lg font-bold">Upload a torrent</h2>
+
+        <div class="text-sm opacity-80 mt-1">
+          <ol>
+            <li>Upload a valid <b>.torrent</b> file</li>
+            <li>Cover image, languages and subtitles are optional</li>
+          </ol>
+        </div>
+
+        <!-- Tracker row -->
+        <div class="flex items-center justify-between flex-wrap mt-4 p-3 bg-base-100 rounded-lg">
+          <div class="flex flex-col">
+            <span class="text-sm font-semibold">Tracker URL</span>
+            <span class="text-xs opacity-70 font-mono truncate w-30 md:w-full">{{
+              this.trackerUrl()
+            }}</span>
+          </div>
+
+          @if (this.copied()) {
+            <button type="button" class="btn btn-sm btn-success" (click)="copyTracker()">
+              Copied
+            </button>
+          } @else {
+            <button type="button" class="btn btn-sm btn-neutral" (click)="copyTracker()">
+              Copy
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- ERROR -->
+  <!-- ===================== -->
+  @if (this.error()) {
+    <div role="alert" class="alert alert-error w-full">
+      <div (click)="this.error.set('')">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6 shrink-0 stroke-current"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      </div>
+      <span>{{ this.error() }}</span>
+    </div>
+  }
+
+  <!-- ===================== -->
+  <!-- FORM -->
+  <!-- ===================== -->
+  <form
+    [formGroup]="uploadForm"
+    (ngSubmit)="onSubmit()"
+    enctype="multipart/form-data"
+    class="w-full max-w-6xl"
+  >
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- LEFT -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h3 class="text-lg font-bold">Basic info</h3>
+
+          <label class="label">Title</label>
+          <input class="input" formControlName="title" />
+
+          <label class="label mt-2">Description</label>
+          <textarea class="textarea" formControlName="description"></textarea>
+
+          <label class="block mb-2 text-sm font-medium">Category</label>
+          <select formControlName="category" class="select select-bordered">
+            @for (category of this.categories; track category.value) {
+              <option [value]="category.value">{{ category.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h3 class="text-lg font-bold">Files & tags</h3>
+
+          <!-- LANGUAGES -->
+          <label class="label mt-2">
+            Languages
+            <span class="text-xs opacity-60">(press enter after typing a language)</span>
+          </label>
+
+          <div class="flex gap-2">
+            <input
+              class="input flex-1"
+              placeholder="Add language"
+              (keydown.enter)="
+                addLanguage($any($event.target).value);
+                $any($event.target).value = '';
+                $event.preventDefault()
+              "
+            />
+          </div>
+
+          <div class="flex flex-wrap gap-2 mt-2">
+            @for (lang of uploadForm.value.languages ?? []; track lang) {
+              <div class="badge badge-primary gap-2">
+                {{ lang }}
+                <button type="button" (click)="removeLanguage(lang)">✕</button>
+              </div>
+            }
+          </div>
+
+          <!-- SUBTITLES -->
+          <label class="label mt-4">
+            Subtitles
+            <span class="text-xs opacity-60">(press enter after typing a language</span>
+          </label>
+
+          <div class="flex gap-2">
+            <input
+              class="input flex-1"
+              placeholder="Add subtitle"
+              (keydown.enter)="
+                addSubtitle($any($event.target).value);
+                $any($event.target).value = '';
+                $event.preventDefault()
+              "
+            />
+          </div>
+
+          <div class="flex flex-wrap gap-2 mt-2">
+            @for (sub of uploadForm.value.subtitles ?? []; track sub) {
+              <div class="badge badge-secondary gap-2">
+                {{ sub }}
+                <button type="button" (click)="removeSubtitle(sub)">✕</button>
+              </div>
+            }
+          </div>
+
+          <!-- FILES -->
+          <label class="label mt-4">Torrent file</label>
+          <input
+            type="file"
+            class="file-input file-input-bordered w-full"
+            accept=".torrent"
+            (change)="onFileSelected($event)"
+          />
+
+          <label class="label mt-4">Cover image (optional)</label>
+          <input
+            type="file"
+            class="file-input file-input-bordered w-full"
+            accept="image/*"
+            (change)="onCoverSelected($event)"
+          />
+
+          <!-- SUBMIT -->
+          <button
+            type="submit"
+            class="btn btn-neutral mt-6 w-full"
+            [disabled]="uploadForm.invalid || !file"
+          >
+            Upload torrent
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

@@ -8,7 +8,6 @@ import { trackerRouter } from "./modules/tracker/tracker.routes.ts";
 
 export const app = express();
 
-app.use(json());
 app.use(cookieParser());
 app.use(
     cors({
@@ -16,7 +15,9 @@ app.use(
         credentials: true,
     }),
 );
+app.use(json());
 
-app.use("/auth", authRouter);
 app.use("/torrent", torrentRouter);
+
 app.use("/tracker", trackerRouter);
+app.use("/auth", authRouter);

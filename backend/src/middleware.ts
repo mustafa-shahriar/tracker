@@ -3,6 +3,8 @@ import type { ZodObject } from "zod";
 
 export function validatePayload(schema: ZodObject) {
     return (req: Request, res: Response, next: NextFunction) => {
+        req.body.languages = JSON.parse(req.body.languages || "[]");
+        req.body.subtitles = JSON.parse(req.body.subtitles || "[]");
         const result = schema.safeParse(req.body);
 
         if (!result.success) {

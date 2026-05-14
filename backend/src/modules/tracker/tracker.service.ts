@@ -76,14 +76,14 @@ export async function updatePeerSession({
     left,
 }: UpdatePeerSessionArgs) {
     const statement = sql`
-        INSERT INTO peer_sessions (user_id, infohash, uploaded, downloaded, left, completed_at)
-        VALUES (${user_id}, ${infohash}, ${uploaded}, ${downloaded}, ${left}, CASE WHEN $5 = 0 THEN NOW() ELSE NULL END)
+        INSERT INTO peer_sessions (user_id, infohash, uploaded, downloaded, "left", completed_at)
+        VALUES (${user_id}, ${infohash}, ${uploaded}, ${downloaded}, ${left}, CASE WHEN ${left} = 0 THEN NOW() ELSE NULL END)
         ON CONFLICT (user_id, infohash) DO UPDATE SET
         uploaded = EXCLUDED.uploaded,
         downloaded = EXCLUDED.downloaded,
-        left = EXCLUDED.left,
+        "left" = EXCLUDED."left",
         completed_at = CASE
-            WHEN EXCLUDED.left = 0 AND peer_sessions.completed_at IS NULL THEN NOW()
+            WHEN EXCLUDED."left" = 0 AND peer_sessions.completed_at IS NULL THEN NOW()
             ELSE peer_sessions.completed_at
         END
         `;
