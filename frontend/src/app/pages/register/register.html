@@ -1,1 +1,78 @@
-<p>register works!</p>
+<div>
+  @if (this.error()) {
+    <div role="alert" class="alert alert-error mb-4">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-6 w-6 shrink-0 stroke-current"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+
+      <span>{{ this.error() }}</span>
+    </div>
+  }
+
+  <form
+    [formGroup]="registerForm"
+    (ngSubmit)="onSubmit()"
+    class="flex justify-center content-center h-full"
+  >
+    <div>
+      <div class="hero-content flex-col lg:flex-row-reverse">
+        <!-- RIGHT SIDE -->
+        <div class="text-center lg:text-left">
+          <a routerLink="/login" class="link link-primary"> Already have an account? </a>
+
+          <h1 class="text-4xl font-bold mt-2">Create Account</h1>
+
+          <p class="py-6 max-w-md">
+            Join the torrent community, upload files securely, and share with others instantly.
+          </p>
+        </div>
+
+        <!-- FORM -->
+        <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+          <div class="card-body">
+            <fieldset class="fieldset">
+              <!-- USERNAME -->
+              <label class="label"> Name </label>
+
+              <input type="text" class="input" formControlName="name" placeholder="Name" />
+
+              <!-- EMAIL -->
+              <label class="label"> Email </label>
+
+              <input type="email" class="input" formControlName="email" placeholder="Email" />
+
+              <!-- PASSWORD -->
+              <label class="label"> Password </label>
+
+              <input
+                type="password"
+                class="input"
+                formControlName="password"
+                placeholder="Password"
+              />
+
+              <!-- SUBMIT -->
+              <button
+                type="submit"
+                [disabled]="this.registerForm.invalid"
+                class="btn btn-neutral mt-4"
+              >
+                Create Account
+              </button>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

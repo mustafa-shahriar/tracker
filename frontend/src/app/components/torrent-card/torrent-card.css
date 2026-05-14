@@ -1,0 +1,8 @@
+.torrent-card-cover {
+  min-width: 8rem;
+  min-height: 8rem;
+}
+
+.torrent-card-cover img {
+  object-fit: cover;
+}

@@ -1,1 +1,10 @@
-<p>search-bar works!</p>
+<div class="w-full flex gap-2">
+  <input
+    type="text"
+    class="input input-bordered w-full"
+    placeholder="Search torrents..."
+    [(ngModel)]="query"
+    (keydown.enter)="search()"
+  />
+  <button class="btn btn-primary" (click)="search()">Search</button>
+</div>
