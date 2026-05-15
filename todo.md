@@ -11,10 +11,10 @@
 - [x] fix image uploade
 - [x] fix file upload in angular, use ngmodel for file upload, or maybe use ngmodel for everything
 - [O] fix multiple refresh token for user in db (not really a problem, there should be multiple rt for multi device login)
-- [ ] creat torrent/id page in angular
-- [ ] create torrent card for home  and search result page
-- [ ] implement download of .torrent file on torrent card and torrent/id page
-- [ ] create search page in angular
-- [ ] create me page in angular, render username, email and  users uploaded torrents
-- [ ] create register page in angular
+- [x] creat torrent/id page in angular
+- [x] create torrent card for home  and search result page
+- [x] implement download of .torrent file on torrent card and torrent/id page
+- [x] create search page in angular
+- [x] create me page in angular, render username, email and  users uploaded torrents
+- [x] create register page in angular
 - [ ] completed count is not updated
