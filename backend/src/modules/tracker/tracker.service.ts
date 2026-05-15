@@ -30,6 +30,7 @@ export async function getAndAddPeers({
     compact,
 }: GetAndAddPeersArgs) {
     await redis.zRemRangeByScore(info_hex, 0, Date.now() - ANNOUNCE_INTERVAL);
+    await redis.zRem(info_hex, key);
     const peers = await redis.zRangeByScore(info_hex, Date.now() - ANNOUNCE_INTERVAL, "+inf", {
         LIMIT: {
             offset: 0,
@@ -42,7 +43,7 @@ export async function getAndAddPeers({
     let payload = undefined;
     let seedersCount = 0;
     let leechersCount = 0;
-    if (compact === 1) {
+    if (Number(compact) === 1) {
         const buf = Buffer.alloc(peers.length * 6);
         peers.forEach((peer, i) => {
             if (peer.startsWith("s")) {
@@ -120,7 +121,6 @@ export async function getSeedLeechCount(ANNOUNCE_INTERVAL: number, infoHex: stri
         keys: [infoHex],
         arguments: [String(min), max],
     })) as [number, number];
-    console.log(result);
 
     return {
         seedCount: result[0],

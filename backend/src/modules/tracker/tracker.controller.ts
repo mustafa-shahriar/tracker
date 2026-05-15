@@ -5,6 +5,8 @@ import { getAndAddPeers, updatePeerSession } from "./tracker.service.ts";
 import { ANNOUNCE_INTERVAL, MAX_PEERS } from "../../config.ts";
 import { normalizeIp, parseInfoHash } from "./tracker.parser.ts";
 
+const ANNOUNCE_INTERVAL_SEC = 30 * 60;
+
 export async function announce(req: Request, res: Response) {
     try {
         const info_hex = parseInfoHash(req as any);
@@ -46,7 +48,9 @@ export async function announce(req: Request, res: Response) {
 
         if (event === "stopped") {
             await redis.zRem(info_hex, key);
-            return res.send(bencodec.encodeToString({ interval: ANNOUNCE_INTERVAL, peers: "" }));
+            return res.send(
+                bencodec.encodeToString({ interval: ANNOUNCE_INTERVAL_SEC, peers: "" }),
+            );
         }
 
         let peers = await getAndAddPeers({
@@ -56,6 +60,7 @@ export async function announce(req: Request, res: Response) {
             numwant,
             compact,
         });
+        console.log(peers);
         if (peerStatus === "s") {
             peers.seedersCount++;
         } else {
@@ -72,7 +77,7 @@ export async function announce(req: Request, res: Response) {
 
         res.send(
             bencodec.encodeToBytes({
-                interval: ANNOUNCE_INTERVAL,
+                interval: ANNOUNCE_INTERVAL_SEC,
                 "min interval": 900,
                 complete: peers.seedersCount,
                 incomplete: peers.leechersCount,

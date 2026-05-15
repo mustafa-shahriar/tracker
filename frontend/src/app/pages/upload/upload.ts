@@ -153,7 +153,7 @@ export class Upload implements OnInit {
     this.http.post<{ message: string; torrentId: number }>('/torrent', formData).subscribe({
       next: (res) => {
         console.log(res);
-        // this.router.navigate(['torrent', res.torrentId]);
+        this.router.navigate(['torrent', res.torrentId]);
       },
       error: (err) => this.setError(err.message),
     });

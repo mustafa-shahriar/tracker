@@ -211,7 +211,7 @@ export async function getUserPasskey(userId: number) {
 
 async function modifyTorrentFile(fileBuf: Buffer, passkey: string) {
     const file: any = bencodec.decode(fileBuf);
-    const url = `${BACKEND_URL}/tracker/${passkey}/annouch`;
+    const url = `${BACKEND_URL}/tracker/${passkey}/announce`;
     setAnnounceUrl(file, url);
     return bencodec.encodeToBytes(file);
 }
