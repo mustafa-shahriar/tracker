@@ -15,20 +15,20 @@ export async function getUserByPassKey(passKey: string) {
     return result;
 }
 
-interface GetPeersArgs {
+interface GetAndAddPeersArgs {
     info_hex: string;
     key: string;
     ANNOUNCE_INTERVAL: number;
     numwant: number;
     compact: number;
 }
-export async function getPeers({
+export async function getAndAddPeers({
     info_hex,
     ANNOUNCE_INTERVAL,
     numwant,
     key,
     compact,
-}: GetPeersArgs) {
+}: GetAndAddPeersArgs) {
     await redis.zRemRangeByScore(info_hex, 0, Date.now() - ANNOUNCE_INTERVAL);
     const peers = await redis.zRangeByScore(info_hex, Date.now() - ANNOUNCE_INTERVAL, "+inf", {
         LIMIT: {
@@ -120,6 +120,7 @@ export async function getSeedLeechCount(ANNOUNCE_INTERVAL: number, infoHex: stri
         keys: [infoHex],
         arguments: [String(min), max],
     })) as [number, number];
+    console.log(result);
 
     return {
         seedCount: result[0],

@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import bencodec from "bencodec";
 import { redis } from "../../db/db.ts";
-import { getPeers, updatePeerSession } from "./tracker.service.ts";
+import { getAndAddPeers, updatePeerSession } from "./tracker.service.ts";
 import { ANNOUNCE_INTERVAL, MAX_PEERS } from "../../config.ts";
 import { normalizeIp, parseInfoHash } from "./tracker.parser.ts";
 
@@ -49,7 +49,7 @@ export async function announce(req: Request, res: Response) {
             return res.send(bencodec.encodeToString({ interval: ANNOUNCE_INTERVAL, peers: "" }));
         }
 
-        let peers = await getPeers({
+        let peers = await getAndAddPeers({
             ANNOUNCE_INTERVAL,
             info_hex,
             key,
