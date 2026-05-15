@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
 
 import { db } from "../../db/db.ts";
-import { refreshTokensTable, usersTable } from "../../db/schema.ts";
+import { refreshTokensTable, usersTable, userStatTable } from "../../db/schema.ts";
 import { JWT_SECRET } from "../../config.ts";
 import type { LoginInput, RegisterInput } from "./auth.validation.ts";
 import { eq } from "drizzle-orm";
@@ -23,6 +23,20 @@ export async function createUser(userData: RegisterInput) {
 
     const { passwordHash, ...safeUser } = result[0]!;
     return safeUser;
+}
+
+export async function createUserStat(user_id: number) {
+    const passKey = crypto.randomBytes(20).toString("hex");
+
+    const [result] = await db
+        .insert(userStatTable)
+        .values({
+            user_id,
+            passKey,
+        })
+        .returning();
+
+    return result;
 }
 
 export async function getUser(payload: LoginInput) {

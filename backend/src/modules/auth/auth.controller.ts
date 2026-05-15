@@ -7,6 +7,7 @@ import {
     verifyRefreshToken,
     getUser,
     deleteRefreshToken,
+    createUserStat,
 } from "./auth.service.ts";
 
 export async function login(req: Request<{}, {}, LoginInput>, res: Response) {
@@ -92,6 +93,7 @@ export async function register(req: Request<{}, {}, RegisterInput>, res: Respons
         const user = await createUser(req.body);
         const jwt = generateJwt({ userId: user.id });
         const refreshToken = await createRefreshToken(user.id);
+        await createUserStat(user.id);
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
