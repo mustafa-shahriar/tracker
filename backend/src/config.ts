@@ -5,7 +5,7 @@ export const JWT_SECRET = process.env.JWT_SECRET!;
 export const REFRESH_TOKEN_EXPIRES_DAYS = 30!;
 export const FRONTEND_URL = process.env.FRONTEND_URL!;
 export const BACKEND_URL = process.env.BACKEND_URL!;
-export const ANNOUNCE_INTERVAL = 60 * 30;
+export const ANNOUNCE_INTERVAL = 60 * 30 * 1000;
 export const MAX_PEERS = 50;
 
 const pgUser = process.env.POSTGRES_USER;
