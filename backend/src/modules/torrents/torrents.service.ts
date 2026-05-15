@@ -32,9 +32,6 @@ export async function createTorrent({ userId, body, files }: CreateTorrentInput)
 
     const coverImg = files.cover?.[0];
     let coverUrl = undefined;
-    console.log("coverImg:", coverImg);
-    console.log("coverImg.buffer:", coverImg?.buffer);
-    console.log("coverImg.mimetype:", coverImg?.mimetype);
     if (coverImg) {
         coverUrl = await uploadFile(coverImg.buffer, coverImg.mimetype);
     }
