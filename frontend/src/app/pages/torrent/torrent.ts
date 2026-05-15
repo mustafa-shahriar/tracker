@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { Navbar } from '../../components/navbar/navbar';
 import { BytesPipe } from '../../pipe/bytes.pipe';
 import { TorrentType } from '../../app.types';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-torrent',
@@ -13,28 +14,30 @@ import { TorrentType } from '../../app.types';
   templateUrl: './torrent.html',
 })
 export class Torrent implements OnInit {
-  readonly id: string;
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   torrent = signal<TorrentType | undefined>(undefined);
   error = signal('');
   downloading = signal(false);
 
-  constructor() {
-    this.id = this.route.snapshot.paramMap.get('id')!;
-  }
-
   ngOnInit(): void {
-    this.http.get<TorrentType>(`/torrent/${this.id}`).subscribe({
-      next: (res) => this.torrent.set(res),
-      error: () => this.error.set('Error fetching torrent'),
-    });
+    this.route.paramMap
+      .pipe(
+        switchMap((params) => {
+          const id = params.get('id');
+          return this.http.get<TorrentType>(`/torrent/${id}`);
+        }),
+      )
+      .subscribe({
+        next: (res) => this.torrent.set(res),
+        error: () => this.error.set('Error fetching torrent'),
+      });
   }
 
   downloadTorrent() {
     this.downloading.set(true);
     this.http
-      .get(`/torrent/${this.id}/download`, {
+      .get(`/torrent/${this.torrent()?.id}/download`, {
         responseType: 'blob',
       })
       .subscribe({
@@ -50,7 +53,10 @@ export class Torrent implements OnInit {
 
           this.downloading.set(false);
         },
-        error: () => this.error.set('Error Downloading File'),
+        error: (err) => {
+          console.log(err);
+          this.error.set('Error Downloading File');
+        },
       });
   }
 }

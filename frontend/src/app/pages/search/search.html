@@ -6,7 +6,7 @@
       <div class="card bg-base-200 shadow-md">
         <div class="card-body">
           <h1 class="text-xl font-bold">Search torrents</h1>
-          <app-search-bar [initial]="q"></app-search-bar>
+          <app-search-bar [initial]="q()"></app-search-bar>
         </div>
       </div>
     </div>
@@ -21,8 +21,8 @@
       <div class="w-full max-w-6xl">
         <div class="card bg-base-200 shadow-md">
           <div class="card-body">
-            <h2 class="text-lg font-bold">Recent torrents</h2>
-            <p class="text-sm opacity-80 mt-1">Your Search Results</p>
+            <h2 class="text-lg font-bold">Search Results</h2>
+            <p class="text-sm opacity-80 mt-1">result for: {{q()}}</p>
           </div>
         </div>
       </div>

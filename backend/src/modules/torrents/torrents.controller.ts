@@ -114,6 +114,7 @@ export async function downloadTorrentFile(req: Request, res: Response) {
             .setHeader("Content-Disposition", `attachment; filename=${file.title}`)
             .send(file.file);
     } catch (err: any) {
+        console.log(err);
         return res.status(403).json({
             message: err.message,
         });
