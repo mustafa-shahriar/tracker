@@ -12,6 +12,7 @@ tmux new-window -t dev -n drizzle
 
 tmux send-keys -t dev:docker 'docker compose up' C-m
 tmux send-keys -t dev:app 'npm run dev' C-m
+tmux send-keys -t dev:drizzle 'npx drizzle-kit migrate' C-m
 tmux send-keys -t dev:drizzle 'npx drizzle-kit studio' C-m
 
 tmux select-window -t dev:nvim
