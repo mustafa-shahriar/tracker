@@ -44,7 +44,6 @@ A modern, full-stack torrent tracker application built with TypeScript.
 #### 1. Start Infrastructure (Docker)
 ```bash
 cd backend
-npx drizzle-kit migrate
 docker compose up -d
 ```
 
@@ -56,6 +55,7 @@ This starts:
 #### 2. Start Backend Server
 ```bash
 cd backend
+npx drizzle-kit migrate
 npm run dev
 ```
 
